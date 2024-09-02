@@ -1,10 +1,10 @@
-import 'dart:convert';
-
 import 'package:bitsoljae/logger.dart';
 import 'package:bitsoljae/notice/notice.dart';
 import 'package:bitsoljae/ui_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:html/parser.dart' as parser;
+import 'package:html/dom.dart' as dom;
 
 class NoticePage extends StatefulWidget {
   const NoticePage({super.key});
@@ -14,26 +14,11 @@ class NoticePage extends StatefulWidget {
 }
 
 class _NoticePageState extends State<NoticePage> {
-  Map<String, bool> _noticeReadStatus = {};
+  final ScrollController _scrollController = ScrollController();
   List<Notice> _noticeList = <Notice>[];
   int _currentPage = 0;
   final int _pageSize = 10;
   bool _isLoading = false;
-
-  void _saveNoticeReadStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    String json = jsonEncode(_noticeReadStatus);
-    await prefs.setString('noticeReadStatus', json);
-  }
-
-  void _loadNoticeReadStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? json = prefs.getString('noticeReadStatus');
-    if (json != null) {
-      Map<String, dynamic> map = jsonDecode(json);
-      _noticeReadStatus = map.map((key, value) => MapEntry(key, value as bool));
-    }
-  }
 
   void _getNoticeList() async {
     if (_isLoading) {
@@ -46,6 +31,9 @@ class _NoticePageState extends State<NoticePage> {
         await getNoticeList(_currentPage + 1, _pageSize)
             .onError((error, stackTrace) {
       logger.e('Failed to get notice list: $error');
+      if (!mounted) {
+        return (<NoticeThumbnail>[], <NoticeThumbnail>[], 0);
+      }
       showDialog(
           context: context,
           builder: (context) {
@@ -61,13 +49,14 @@ class _NoticePageState extends State<NoticePage> {
     if (_currentPage == 0) {
       newNoticeThumbnailsList.addAll(newNoticeThumbnailsTopList);
       newNoticeThumbnailsList.sort((a, b) => b.date.compareTo(a.date));
-      logger.d('Top notice thumbnails: $newNoticeThumbnailsTopList');
-      logger.d('Notice thumbnails: $newNoticeThumbnailsList');
     }
     for (NoticeThumbnail noticeThumbnail in newNoticeThumbnailsList) {
       Notice newNotice =
           await getNotice(noticeThumbnail.id).onError((error, stackTrace) {
         logger.e('Failed to get notice: $error');
+        if (!mounted) {
+          return Notice.empty();
+        }
         showDialog(
             context: context,
             builder: (context) {
@@ -88,14 +77,27 @@ class _NoticePageState extends State<NoticePage> {
     });
   }
 
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _getNoticeList();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_scrollListener);
     _noticeList = [];
     _currentPage = 0;
     _isLoading = false;
-    _loadNoticeReadStatus();
     _getNoticeList();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _refresh() {
@@ -124,6 +126,7 @@ class _NoticePageState extends State<NoticePage> {
           _refresh();
         },
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             children: [
               if (_noticeList.isEmpty)
@@ -135,7 +138,8 @@ class _NoticePageState extends State<NoticePage> {
                     ),
                   ),
                 ),
-              for (Notice notice in _noticeList) NoticeCard(notice: notice),
+              for (Notice notice in _noticeList)
+                Center(child: NoticeCard(notice: notice)),
             ],
           ),
         ),
@@ -181,6 +185,48 @@ String _getFormattedBeforeDate(String date) {
   return "${difference.inDays ~/ 365}년 전";
 }
 
+Widget _getFormattedHtml(String html, BuildContext context,
+    {List<String> attachment = const <String>[]}) {
+  // dom.Element emptyElement = dom.Element.tag('div');
+  String replacedString = html
+      .replaceAll(r'\"', '"')
+      .replaceAll('file:///', '')
+      .replaceAll('/%22', '')
+      .replaceAll(r'\n', '')
+      .replaceAll(RegExp(r'\n+'), '\n');
+  dom.Document document = parser.parse(replacedString);
+  dom.Element body = document.body!;
+  if (body.innerHtml == '<p><br></p>') {
+    logger.d("empty html");
+    if (attachment.isNotEmpty) {
+      logger.d("attachment: $attachment");
+      return Column(
+        children: [
+          for (String attach in attachment)
+            Image.network(
+              attach,
+              fit: BoxFit.fitWidth,
+            ),
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+  // delete all line-height style
+  body.querySelectorAll('*').forEach((element) {
+    element.attributes.remove('style');
+  });
+  // HtmlElement htmlElement = HtmlElement.empty().getAllElementFromHtml(body);
+  return InkWell(
+    onTap: () {
+      logger.d("html: ${html.replaceAll(r'\"', '"')}");
+    },
+    child: Html.fromElement(documentElement: body),
+    // child: htmlElement.toWidget(context),
+  );
+}
+
 class NoticeCard extends StatefulWidget {
   final Notice notice;
   const NoticeCard({super.key, required this.notice});
@@ -190,62 +236,85 @@ class NoticeCard extends StatefulWidget {
 }
 
 class _NoticeCardState extends State<NoticeCard> {
-  bool _isExpanded = false;
+  // bool _isExpanded = false;
 
   @override
   void initState() {
     super.initState();
-    _isExpanded = false;
+    // _isExpanded = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        yMargin(16, context),
-        SizedBox(
-          height: 55 * getScaleWidth(context),
-          child: Container(
-            width: 1000 * getScaleWidth(context),
-            padding: EdgeInsets.all(8.0 * getScaleWidth(context)),
-            child: Text(
-              widget.notice.title,
-              softWrap: true,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 16.0 * getScaleWidth(context),
+        bottom: 16.0 * getScaleWidth(context),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: Colors.black12,
+            width: 1.0 * getScaleWidth(context),
           ),
         ),
-        SizedBox(
-          height: 55 * getScaleWidth(context),
-          child: Container(
-            width: 1000 * getScaleWidth(context),
-            padding: EdgeInsets.all(8.0 * getScaleWidth(context)),
-            child: Text(
-              "${widget.notice.author} · ${_getFormattedBeforeDate(widget.notice.date)} · 조회수 ${widget.notice.views}",
-              softWrap: true,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Colors.black87,
-                  ),
+        width: 1040 * getScaleWidth(context),
+        child: Column(
+          children: [
+            yMargin(16, context),
+            SizedBox(
+              height: 55 * getScaleWidth(context),
+              child: Container(
+                width: 1000 * getScaleWidth(context),
+                padding: EdgeInsets.all(8.0 * getScaleWidth(context)),
+                child: Text(
+                  widget.notice.title,
+                  softWrap: true,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ),
             ),
-          ),
+            SizedBox(
+              height: 55 * getScaleWidth(context),
+              child: Container(
+                width: 1000 * getScaleWidth(context),
+                padding: EdgeInsets.all(8.0 * getScaleWidth(context)),
+                child: Text(
+                  "${widget.notice.author} · ${_getFormattedBeforeDate(widget.notice.date)} · 조회수 ${widget.notice.views}",
+                  softWrap: true,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Colors.black87,
+                      ),
+                ),
+              ),
+            ),
+            yMargin(32, context),
+            Padding(
+              padding: EdgeInsets.all(40 * getScaleWidth(context)),
+              child: _getFormattedHtml(
+                widget.notice.content,
+                context,
+                attachment: widget.notice.attachments,
+              ),
+            ),
+            yMargin(16, context),
+            // TextButton(
+            //     onPressed: () {
+            //       setState(() {
+            //         _isExpanded = !_isExpanded;
+            //       });
+            //     },
+            //     child: Text(_isExpanded ? '접기' : '펼치기')),
+          ],
         ),
-        yMargin(32, context),
-        SizedBox(
-          height: _isExpanded ? 1000 * getScaleWidth(context) : null,
-          child: colorContainer(Colors.grey[200]!),
-        ),
-        yMargin(32, context),
-        SizedBox(
-          height: 64 * getScaleWidth(context),
-          child: colorContainer(Colors.blue),
-        ),
-      ],
+      ),
     );
   }
 }

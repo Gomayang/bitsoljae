@@ -27,7 +27,9 @@ class MyApp extends StatelessWidget {
             fontSize: 24 * getScaleWidth(context),
           ),
         ),
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF800500)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF800500),
+        ),
         useMaterial3: true,
       ),
       home: const NoticePage(),
