@@ -1,0 +1,140 @@
+{
+    "root": [
+        {
+            "list": [
+                {
+                    "sl_content": "추석을 지내기 위해서 본가로 내려가야 합니다.",
+                    "sl_gubun": "NORMAL",
+                    "regname": "정세민",
+                    "RNUM": 1,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-09-08",
+                    "locgbn": "KW",
+                    "regdate": "2024-09-03",
+                    "seq": 98222,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "추석을 지내기 위해서 본가로 내려가야 합니다.",
+                    "sl_gubun": "NORMAL",
+                    "regname": "정세민",
+                    "RNUM": 2,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-09-07",
+                    "locgbn": "KW",
+                    "regdate": "2024-09-03",
+                    "seq": 98221,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "추석을 지내기 위해서 본가로 내려가야 합니다.",
+                    "sl_gubun": "NORMAL",
+                    "regname": "정세민",
+                    "RNUM": 3,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-09-06",
+                    "locgbn": "KW",
+                    "regdate": "2024-09-03",
+                    "seq": 98220,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "추석을 지내기 위해서 본가로 내려가야 합니다.",
+                    "sl_gubun": "NORMAL",
+                    "regname": "정세민",
+                    "RNUM": 4,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-09-05",
+                    "locgbn": "KW",
+                    "regdate": "2024-09-03",
+                    "seq": 98219,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "개강 전 본가에 있고 싶습니다.",
+                    "sl_gubun": "LONG",
+                    "regname": "정세민",
+                    "RNUM": 5,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-08-31",
+                    "locgbn": "KW",
+                    "regdate": "2024-08-24",
+                    "seq": 96394,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "개강 전 본가에 있고 싶습니다.",
+                    "sl_gubun": "LONG",
+                    "regname": "정세민",
+                    "RNUM": 6,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-08-30",
+                    "locgbn": "KW",
+                    "regdate": "2024-08-24",
+                    "seq": 96393,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "개강 전 본가에 있고 싶습니다.",
+                    "sl_gubun": "LONG",
+                    "regname": "정세민",
+                    "RNUM": 7,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-08-29",
+                    "locgbn": "KW",
+                    "regdate": "2024-08-24",
+                    "seq": 96392,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "개강 전 본가에 있고 싶습니다.",
+                    "sl_gubun": "LONG",
+                    "regname": "정세민",
+                    "RNUM": 8,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-08-28",
+                    "locgbn": "KW",
+                    "regdate": "2024-08-24",
+                    "seq": 96391,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "개강 전 본가에 있고 싶습니다.",
+                    "sl_gubun": "LONG",
+                    "regname": "정세민",
+                    "RNUM": 9,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-08-27",
+                    "locgbn": "KW",
+                    "regdate": "2024-08-24",
+                    "seq": 96390,
+                    "approve_desc": "승인대기"
+                },
+                {
+                    "sl_content": "개강 전 본가에 있고 싶습니다.",
+                    "sl_gubun": "LONG",
+                    "regname": "정세민",
+                    "RNUM": 10,
+                    "sl_hakbun": "2024038099",
+                    "sl_krcode": "A0610A",
+                    "sl_sdate": "2024-08-26",
+                    "locgbn": "KW",
+                    "regdate": "2024-08-24",
+                    "seq": 96389,
+                    "approve_desc": "승인대기"
+                }
+            ],
+            "totalCount": [{ "cnt": 12 }],
+            "monthCount": [{ "mcnt": 4 }]
+        }
+    ]
+}
